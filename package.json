@@ -1,0 +1,24 @@
+{
+  "name": "shoesbycolin.com",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+http://github.com/colinbendell/shoesbycolin.com.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/colinbendell/shoesbycolin.com/issues"
+  },
+  "homepage": "https://github.com/colinbendell/shoesbycolin.com#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "commander": "^6.2.0",
+    "fetch-h2": "^2.5.1"
+  }
+}

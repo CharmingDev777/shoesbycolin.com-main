@@ -1,0 +1,22 @@
+{
+  "title": "What is Shoes by Colin?",
+  "created_at": "2020-06-24T01:00:33-04:00",
+  "body_html": {
+    "file": "what-is-shoes-by-colin.html"
+  },
+  "blog_id": 48495689780,
+  "author": "Colin Bendell",
+  "user_id": 38777684020,
+  "published_at": "2020-06-24T01:22:00-04:00",
+  "updated_at": "2020-06-24T01:26:39-04:00",
+  "summary_html": "",
+  "template_suffix": null,
+  "tags": "",
+  "image": {
+    "created_at": "2020-06-24T01:23:21-04:00",
+    "alt": "",
+    "width": 2316,
+    "height": 3088,
+    "src": "https://cdn.shopify.com/s/files/1/0266/7803/4484/articles/IMG_3527.jpg?v=1592976201"
+  }
+}

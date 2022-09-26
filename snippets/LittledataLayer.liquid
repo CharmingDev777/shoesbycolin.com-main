@@ -1,0 +1,205 @@
+
+		<meta name="referrer" content="no-referrer-when-downgrade"/>
+
+
+
+
+<script name="littledata-tracking-tag">
+(function(){
+	/* Data layer for Segment by Littledata app */
+	/* Version v8.5 */
+
+	LittledataLayer = {
+		version: 'v8.5',
+		transactionWatcherURL: 'https://transactions.littledata.io',
+		referralExclusion: /(paypal|visa|MasterCard|clicksafe|arcot\.com|geschuetzteinkaufen|checkout\.shopify\.com|checkout\.rechargeapps\.com|portal\.afterpay\.com|payfort)/,
+		googleSignals: true,
+		anonymizeIp: true,
+		productClicks: true,
+		persistentUserId: true,
+		hideBranding: false,
+		ecommerce: {
+			currencyCode: '{{shop.currency}}',
+			impressions: []
+		}
+	};
+
+	LittledataLayer.writeKey = 'R7SMorAlZ2F9DXQBre4J3xhDwwK5PV5N'
+	
+	
+	
+
+	{%if customer %}
+		LittledataLayer.customer = {
+			id: '{{customer.id | json}}',
+			email: {{customer.email | json}},
+			firstName: {{customer.first_name | json}},
+			lastName: {{customer.last_name | json}},
+			phone: {{customer.phone | json}},
+			createdAt: {{customer.created_at | json}},
+			address: {{customer.default_address | json}},
+			customerLifetimeValue: parseFloat({{customer.total_spent | json}} || 0),
+			purchaseCount: parseInt({{customer.orders_count | json}} || 0),
+			tags: {{customer.tags | json}},
+			generatedClientID: {{customer.metafields.littledata.clientID | json}}
+		};
+	{% endif %}
+	{% if cart %}
+		LittledataLayer.cart = {{cart | json}};
+	{% endif %}
+	{%if product%}
+		var id = '{{product.id | json}}';
+		var variantTitle;
+		var variantId;
+		var pathname = localStorage.getItem('pathname') || '/';
+
+		{%if product.variants.size > 0 %}
+			var sku = {{product.variants[0].sku | json}};
+			{%if product.variants[0].sku and product.variants[0].sku != '' %}
+				id = {{product.variants[0].sku | json}};
+			{% endif %}
+			variantTitle = {{product.variants[0].title | json}};
+			variantId = String({{product.variants[0].id | json}});
+
+			LittledataLayer.ecommerce.variants = [
+			{%- for variant in product.variants -%}
+				{
+					id: {{variant.id | json}},
+					sku: {{variant.sku | json}},
+					title: {{variant.title | json}}
+				},
+			{%- endfor -%}
+			];
+		{% endif %}
+
+		LittledataLayer.ecommerce.detail = {
+			id,
+			name: {{product.title | json}},
+			price: ({{product.price | json}}/100).toFixed(2),
+			brand: {{product.vendor | json}},
+			category: {{product.type | json}},
+			variant: variantTitle,
+			list_name: pathname,
+			list: pathname,
+			handle: {{product.handle | json}},
+			shopify_product_id: String({{product.id | json}}),
+			shopify_variant_id: variantId,
+			compare_at_price: ({{product.compare_at_price | json}}/100).toFixed(2),
+		};
+
+	{% elsif search %}
+		var searchResults = {{search.results | json}} || {};
+
+		{% assign collectionProds = "" %}
+		{%- for product in search.results -%}
+			
+	{% assign productId = product.id | append: "|~;" %}
+	{% assign productTitle = product.title | append: "|~;" %}
+	{% assign productPrice = product.price | append: "|~;" %}
+	{% assign productVendor = product.vendor | append: "|~;" %}
+	{% assign productCategory = product.type | append: "|~;" %}
+	{% assign productHandle = product.handle | append: "|~;" %}
+	{% assign compareAtPrice = product.compare_at_price | append: "|~;" %}
+	{%- for variant in product.variants -%}
+		{% assign productSku = variant.sku | append: "|~;" %}
+		{% assign productVariant = variant.title | append: "|~;" %}
+		{% assign variantId = variant.id | append: "|~;" %}
+		{% assign prod = productId | append: productSku | append: productTitle | append: productPrice | append: productVendor | append: productCategory | append: productHandle | append: productVariant | append: variantId | append: compareAtPrice %}
+		{% assign finalProdArray = prod | append: "<|>" %}
+		{% assign collectionProds = collectionProds | append: finalProdArray %}
+	{%- endfor -%}
+
+		{%- endfor -%}
+		
+	var collectionProds = {{ collectionProds | split: '<|>' | json }};
+	var collectionProducts = buildCollectionProducts(collectionProds);
+
+	addProductsToDataLayer(collectionProducts);
+	localStorage.setItem('pathname', location.pathname);
+
+	{% else %}
+		{% assign collectionProds = "" %}
+		{%- for product in collection.products -%}
+			
+	{% assign productId = product.id | append: "|~;" %}
+	{% assign productTitle = product.title | append: "|~;" %}
+	{% assign productPrice = product.price | append: "|~;" %}
+	{% assign productVendor = product.vendor | append: "|~;" %}
+	{% assign productCategory = product.type | append: "|~;" %}
+	{% assign productHandle = product.handle | append: "|~;" %}
+	{% assign compareAtPrice = product.compare_at_price | append: "|~;" %}
+	{%- for variant in product.variants -%}
+		{% assign productSku = variant.sku | append: "|~;" %}
+		{% assign productVariant = variant.title | append: "|~;" %}
+		{% assign variantId = variant.id | append: "|~;" %}
+		{% assign prod = productId | append: productSku | append: productTitle | append: productPrice | append: productVendor | append: productCategory | append: productHandle | append: productVariant | append: variantId | append: compareAtPrice %}
+		{% assign finalProdArray = prod | append: "<|>" %}
+		{% assign collectionProds = collectionProds | append: finalProdArray %}
+	{%- endfor -%}
+
+		{%- endfor -%}
+		
+	var collectionProds = {{ collectionProds | split: '<|>' | json }};
+	var collectionProducts = buildCollectionProducts(collectionProds);
+
+	addProductsToDataLayer(collectionProducts);
+	localStorage.setItem('pathname', location.pathname);
+
+	{% endif%}
+
+    function buildCollectionProducts(collectionProds) {
+		var collectionProducts = [];
+		if (collectionProds) {
+			var collectionProducts = collectionProds.map(function(product) {
+				var productFields = product.split('|~;');
+
+				return {
+					id: productFields[0],
+					sku: productFields[1],
+					title: productFields[2],
+					price: +productFields[3],
+					vendor: productFields[4],
+					type: productFields[5],
+					handle: productFields[6],
+					variant: productFields[7],
+					shopify_variant_id: productFields[8],
+					compare_at_price: +productFields[9]
+				}
+			});
+			return collectionProducts;
+		}
+    }
+
+    function addProductsToDataLayer(collectionProducts) {
+    	if (collectionProducts && !collectionProducts.error) {
+			var pos = 1;
+			collectionProducts.forEach(function(p){
+				var found = LittledataLayer.ecommerce.impressions.filter(function (x) {
+					return x.name == p.title && x.handle == p.handle
+				})
+
+				if (!found.length) {
+					LittledataLayer.ecommerce.impressions.push({
+						id: p.sku || p.id,
+						name: p.title,
+						price: (p.price/100).toFixed(2),
+						brand: p.vendor,
+						category: p.type,
+						variant: p.variant,
+						list_position: pos++,
+						list_name: location.pathname,
+						list: location.pathname, // duplicate property for GTM
+						handle: p.handle,
+						shopify_product_id: p.id,
+						shopify_variant_id: p.shopify_variant_id,
+						compare_at_price: (p.compare_at_price/100).toFixed(2)
+					})
+				}
+			});
+		}
+    }
+	})();
+</script>
+
+<script async type="text/javascript" src="https://cdn.jsdelivr.net/gh/littledata/shopify-tracker/dist/segmentTracker.js"></script>
+	
